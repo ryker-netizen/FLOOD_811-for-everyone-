@@ -375,50 +375,33 @@
             }
         }
         
-    /* --- CORE VARIABLES --- */
-    :root {
-        --bg-color: #050505;
-        --glass-bg: rgba(10, 20, 10, 0.85);
-        --main-green: #00ff41;
-        --dim-green: #008F11;
-        --alert-red: #ff003c;
-        --cyber-blue: #00f3ff;
-        /* ЗАКРЕПЛЕННЫЕ ШРИФТЫ ДЛЯ ВСЕХ УСТРОЙСТВ */
-        --font-main: 'Courier New', 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', 'Droid Sans Mono', 'Source Code Pro', 'Roboto Mono', 'Ubuntu Mono', 'Liberation Mono', monospace;
-        --border-style: 1px solid var(--dim-green);
-    }
+/* === ФИКС ШРИФТОВ ДЛЯ ЧИТАЕМОСТИ === */
+h1, h2, h3 {
+    font-family: 'Press Start 2P', 'Courier New', 'SF Mono', Monaco, monospace !important;
+    font-weight: bold !important;
+}
 
-    /* ОСНОВНОЙ ШРИФТ ДЛЯ ВСЕХ ЭЛЕМЕНТОВ */
-    body, input, button, textarea {
-        font-family: var(--font-main) !important;
-    }
+body, p, div, span {
+    font-family: 'Comic Neue', 'Courier New', monospace !important;
+    font-weight: 700 !important;
+}
 
-    /* ДОПОЛНИТЕЛЬНОЕ УТОЧНЕНИЕ ДЛЯ КОНКРЕТНЫХ ЭЛЕМЕНТОВ */
-    .terminal-window, .input-field, .btn-glitch, .sys-header, .sys-footer {
-        font-family: var(--font-main) !important;
-    }
+.psycho-btn, input, button {
+    font-family: 'Press Start 2P', 'Courier New', monospace !important;
+    font-weight: bold !important;
+}
 
-    /* ASCII-БЛОКИ С МОНОШИРИННЫМ ШРИФТОМ */
-    .ascii-box, .ascii-character {
-        font-family: 'Courier New', 'SF Mono', Monaco, monospace !important;
-        font-weight: bold !important;
-    }
+p { 
+    font-size: clamp(1.1rem, 3.5vw, 1.4rem) !important; 
+    line-height: 1.8 !important;
+    color: #ffffff !important;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8) !important;
+}
 
-    * { box-sizing: border-box; }
-
-    body {
-        margin: 0;
-        padding: 0;
-        background-color: var(--bg-color);
-        color: var(--main-green);
-        font-family: var(--font-main);
-        overflow: hidden;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        opacity: 0;
-        animation: tvTurnOn 2s ease-in forwards;
-        }
+.character-card p, .interactive-box p {
+    font-size: clamp(1rem, 3vw, 1.2rem) !important;
+    line-height: 1.6 !important;
+}
         
     </style>
 </head>
