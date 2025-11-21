@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ФЛУД 811 - ПСИХБОЛЬНИЦА</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --psycho-red: #ff0066;
+            --psycho-blue: #00ffff;
+            --psycho-green: #00ff88;
+            --psycho-yellow: #ffff00;
+            --psycho-purple: #ff00ff;
+            --dark-bg: #0a0014;
+        }
+
+        /* === УПРОЩЕННЫЕ АНИМАЦИИ === */
+        .psycho-item {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.6s ease;
+        }
+
+        .psycho-item.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .delay-1 { transition-delay: 0.1s; }
+        .delay-2 { transition-delay: 0.2s; }
+        .delay-3 { transition-delay: 0.3s; }
+
+        /* ПРОСТОЕ ДРОЖАНИЕ */
+        @keyframes simple-shake {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(-5px); }
+        }
+
+        .super-shake {
+            animation: simple-shake 0.5s ease-in-out infinite;
+        }
+
+        /* ПРОСТОЕ СВЕЧЕНИЕ */
+        .neon-glow {
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        /* === ОСНОВНЫЕ СТИЛИ === */
+        body {
+            background: var(--dark-bg);
+            color: white;
+            font-family: Arial, sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(255,0,102,0.2) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(0,255,136,0.2) 0%, transparent 50%),
+                linear-gradient(45deg, #0a0014, #1a0034);
+        }
+
+        /* ШКАЛА БЕЗУМИЯ */
+        .madness-scroll-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff0066, #ff00ff, #00ffff);
+            width: 0%;
+            z-index: 10000;
+            transition: width 0.3s ease;
+        }
+
+        .madness-percent-label {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: #ff0066;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            z-index: 10001;
+        }
+
+        /* СЕКЦИИ */
+        .psycho-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            border-bottom: 3px solid var(--psycho-red);
+            background: rgba(10, 0, 20, 0.7);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* ТИПОГРАФИЯ */
+        h1, h2, h3 {
+            text-transform: uppercase;
+            line-height: 1.3;
+        }
+
+        h1 { font-size: 2.5rem; margin-bottom: 1rem; color: var(--psycho-red); }
+        h2 { font-size: 1.8rem; margin-bottom: 1rem; color: var(--psycho-blue); }
+        h3 { font-size: 1.3rem; margin-bottom: 1rem; color: var(--psycho-green); }
+        p { font-size: 1.1rem; line-height: 1.5; color: #ccc; margin-bottom: 1rem; }
+
+        /* КНОПКИ */
+        .psycho-btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: var(--psycho-red);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            border: 2px solid var(--psycho-yellow);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+
+        .psycho-btn:hover {
+            transform: scale(1.05);
+            background: var(--psycho-purple);
+        }
+
+        .telegram-btn {
+            background: #0088cc;
+        }
+
+        /* КАРТОЧКИ */
+        .character-card {
+            background: rgba(255,255,255,0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 2px solid;
+            margin: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .character-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* СЕТКА */
+        .super-grid { 
+            display: grid; 
+            gap: 2rem; 
+            margin: 2rem 0;
+        }
+        .grid-cols-2 { grid-template-columns: 1fr; }
+        .grid-cols-3 { grid-template-columns: 1fr; }
+
+        /* ЧАТ */
+        .chat-message {
+            background: rgba(255,255,255,0.08);
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-left: 4px solid var(--psycho-red);
+            border-radius: 8px;
+        }
+
+        /* ПРОГРЕСС БАР */
+        .madness-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            border: 1px solid var(--psycho-red);
+        }
+
+        .madness-level {
+            height: 100%;
+            background: linear-gradient(90deg, var(--psycho-green), var(--psycho-red));
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        /* ТЕКСТ */
+        .text-center { text-align: center; }
+
+        /* АДАПТИВ */
+        @media (min-width: 768px) {
+            .grid-cols-2 { grid-template-columns: 1fr 1fr; }
+            .grid-cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+            h1 { font-size: 3rem; }
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            background: rgba(0,0,0,0.9);
+            border-top: 2px solid #ff0064;
+            color: #00FF7F;
+            font-size: 0.8rem;
+        }
+
+/* === АДАПТИВ ДЛЯ МОБИЛКИ === */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    .psycho-section {
+        padding: 40px 15px;
+        min-height: auto;
+    }
+    
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.2rem; }
+    
+    .psycho-btn {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+        margin: 5px;
+        display: block;
+        width: 100%;
+        max-width: 300px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .character-card {
+        margin: 10px 0;
+        padding: 20px;
+    }
+    
+    .super-grid.grid-cols-2,
+    .super-grid.grid-cols-3 {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .madness-percent-label {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin: 10px auto;
+        display: inline-block;
+    }
+}
+
+/* === ДЛЯ ТЕЛЕФОНА В АЛЬБОМНОЙ ОРИЕНТАЦИИ === */
+@media (max-width: 768px) and (orientation: landscape) {
+    .psycho-section {
+        min-height: 100vh;
+        padding: 20px;
+    }
+    
+    .super-grid.grid-cols-2 {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* === ОБЩИЕ СТИЛИ ДЛЯ КОНТЕЙНЕРОВ === */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.character-card {
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+    </style>
+</head>
+<body>
+    <!-- ШКАЛА БЕЗУМИЯ -->
+    <div class="madness-scroll-indicator" id="madnessScroll"></div>
+    <div class="madness-percent-label" id="madnessPercentLabel">БЕЗУМИЕ: 0%</div>
+
+    <!-- ЗАСТАВКА -->
+    <div class="psycho-section">
+        <div class="container text-center">
+            <div class="psycho-item delay-1">
+                <h1 class="super-shake neon-glow">ФЛУД 811</h1>
+            </div>
+            <div class="psycho-item delay-2">
+                <h2 class="neon-glow">ПСИХБОЛЬНИЦА</h2>
+            </div>
+            <div class="psycho-item delay-3">
+                <p>🏥 <span class="neon-glow" style="color: var(--psycho-yellow);">ЦЕНТР РЕАБИЛИТАЦИИ ИНЦЕЛОВ И АУТСАЙДЕРОВ</span> 💀</p>
+            </div>
+            <div class="psycho-item delay-1">
+                <button class="psycho-btn" onclick="addFloodPage()">💩 ФЛУДИЛКА</button>
+                <button class="psycho-btn" onclick="activateRainbowMode()">🌈 РАДУГА</button>
+                <button class="psycho-btn telegram-btn" onclick="window.open('https://t.me/Kur_68', '_blank')">👑 @Kur_68</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- О ФЛУДЕ -->
+    <div class="psycho-section">
+        <div class="container">
+            <div class="psycho-item delay-1 text-center">
+                <h2 class="neon-glow" style="color: var(--psycho-green);">ЧТО ЭТО ЗА ПИЗДЕЦ?</h2>
+            </div>
+            <div class="super-grid grid-cols-2">
+                <div class="psycho-item delay-2 character-card" style="border-color: var(--psycho-red);">
+                    <h3>🤪 НАША ИДЕОЛОГИЯ</h3>
+                    <p>Собрать всех долбоебов в одном месте. Здесь нет правил, нет модерации, только чистый хаос.</p>
+                </div>
+                <div class="psycho-item delay-3 character-card" style="border-color: var(--psycho-blue);">
+                    <h3>👑 ВЛАДЕЛЕЦ</h3>
+                    <p>Тот самый легендарный создатель этого ада. Главный инцел и организатор безумия.</p>
+                    <p style="color: var(--psycho-red); margin-top: 1rem;">💊 Телеграм: @Kur_68</p>
+                </div>
+            </div>
+            <div class="psycho-item delay-1 mt-8">
+                <div class="madness-bar">
+                    <div class="madness-level" id="madnessMeter"></div>
+                </div>
+                <p class="text-center">УРОВЕНЬ БЕЗУМИЯ: <span id="madnessPercent" style="color: var(--psycho-red); font-weight: bold;">0%</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПЕРСОНАЖИ -->
+    <div class="psycho-section">
+        <div class="container">
+            <div class="psycho-item delay-1 text-center">
+                <h2 class="neon-glow" style="color: var(--psycho-yellow);">🤪 ГЕРОИ ФЛУДА</h2>
+            </div>
+            <div class="super-grid grid-cols-3">
+                <div class="psycho-item delay-2 character-card" style="border-color: var(--psycho-red);">
+                    <h3>👑 ГЛАВНЫЙ ИНЦЕЛ</h3>
+                    <p>Создатель этого безумия. Общается исключительно криповыми мемами.</p>
+                    <button class="psycho-btn" onclick="sendToIncel()">👑 НАПИСАТЬ</button>
+                </div>
+                <div class="psycho-item delay-3 character-card" style="border-color: var(--psycho-blue);">
+                    <h3>🎮 ПРО ГЕЙМЕР</h3>
+                    <p>Живет в рехабе. Не выходит уже 3 года.</p>
+                    <button class="psycho-btn" onclick="sendToGamer()">🎮 НАПИСАТЬ</button>
+                </div>
+                <div class="psycho-item delay-1 character-card" style="border-color: var(--psycho-green);">
+                    <h3>🤡 ГЛАВНЫЙ КЛОУН</h3>
+                    <p>Печатает такой кринж, что хочется вырвать глаза.</p>
+                    <button class="psycho-btn" onclick="sendToClown()">🤡 НАПИСАТЬ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        @Dicko1Prim | @Kur_68 | 2025 
+    </footer>
+
+    <script>
+        // Firebase конфиг
+        const firebaseConfig = {
+            apiKey: "AIzaSyCBnSx_SWT99LZYWeHViTgBhYu3AFYYAY0",
+            authDomain: "flood811-bf6c1.firebaseapp.com",
+            databaseURL: "https://flood811-786e6-default-rtdb.firebaseio.com",
+            projectId: "flood811-bf6c1",
+            storageBucket: "flood811-bf6c1.firebasestorage.app",
+            messagingSenderId: "309434331492",
+            appId: "1:309434331492:web:d32939f70b70fb88d3ca71"
+        };
+
+        // Инициализация
+        let database = null;
+        let madnessLevel = 0;
+
+        try {
+            firebase.initializeApp(firebaseConfig);
+            database = firebase.database();
+            console.log('🔥 Firebase подключен');
+        } catch (error) {
+            console.log('❌ Ошибка Firebase:', error);
+        }
+
+        // Анимации при скролле
+        document.addEventListener('DOMContentLoaded', function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('in-view');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.psycho-item').forEach(item => {
+                observer.observe(item);
+            });
+
+            // Скролл индикатор
+            window.addEventListener('scroll', function() {
+                const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const scrolled = window.scrollY;
+                const scrollPercent = Math.min(100, Math.floor((scrolled / scrollHeight) * 100));
+                
+                document.getElementById('madnessScroll').style.width = scrollPercent + '%';
+                document.getElementById('madnessPercentLabel').textContent = `БЕЗУМИЕ: ${scrollPercent}%`;
+            });
+        });
+
+        function updateMadnessMeter() {
+            document.getElementById('madnessMeter').style.width = madnessLevel + '%';
+            document.getElementById('madnessPercent').textContent = madnessLevel + '%';
+        }
+
+        function increaseMadness() {
+            madnessLevel = Math.min(madnessLevel + 15, 100);
+            updateMadnessMeter();
+        }
+
+        function activateRainbowMode() {
+            document.body.style.background = 'linear-gradient(45deg, #ff0066, #ff00ff, #00ffff, #ffff00, #00ff88)';
+            madnessLevel = 100;
+            updateMadnessMeter();
+        }
+
+        // Функции флудилки
+        function addFloodPage() {
+            document.body.innerHTML = `
+                <div style="background: #0a0014; color: white; min-height: 100vh; padding: 20px; text-align: center;">
+                    <h1 style="color: #ff0066;">💩 ФЛУДИЛКА 811</h1>
+                    <textarea id="floodText" placeholder="ПИШИ СЮДА СВОЙ КРИНЖ..." style="width: 100%; max-width: 500px; height: 100px; background: #111; color: #00ff88; border: 2px solid #ff0066; padding: 15px; margin: 20px 0; border-radius: 8px;"></textarea>
+                    <div>
+                        <button class="psycho-btn" onclick="postFlood()">💩 ОТПРАВИТЬ</button>
+                        <button class="psycho-btn" onclick="viewFlood()">👀 ПОСМОТРЕТЬ</button>
+                        <button class="psycho-btn" onclick="clearFlood()">🗑️ ОЧИСТИТЬ</button>
+                        <button class="psycho-btn" onclick="window.location.reload()">🏃‍♂️ НАЗАД</button>
+                    </div>
+                    <div id="floodResult" style="margin-top: 20px;"></div>
+                </div>
+            `;
+        }
+
+        function postFlood() {
+            const text = document.getElementById('floodText').value.trim();
+            if (!text) {
+                alert('⚠️ ВВЕДИ ХОТЬ ЧТО-ТО!');
+                return;
+            }
+            
+            if (database) {
+                database.ref('floodMessages').push({
+                    text: text,
+                    time: new Date().toLocaleTimeString(),
+                    timestamp: Date.now()
+                });
+                document.getElementById('floodResult').innerHTML = '<p style="color: #00ff88;">✅ СООБЩЕНИЕ ОТПРАВЛЕНО!</p>';
+                document.getElementById('floodText').value = '';
+            }
+        }
+
+        function viewFlood() {
+            if (!database) return;
+            
+            database.ref('floodMessages').orderByChild('timestamp').limitToLast(20).on('value', (snapshot) => {
+                const messages = [];
+                snapshot.forEach((childSnapshot) => {
+                    messages.push(childSnapshot.val());
+                });
+                
+                let html = '';
+                messages.reverse().forEach(msg => {
+                    html += `<div class="chat-message">
+                        <strong style="color: #ff0066;">💩 АНОНИМ:</strong> ${msg.text}
+                        <div style="color: #666; font-size: 0.8rem;">${msg.time}</div>
+                    </div>`;
+                });
+                
+                document.getElementById('floodResult').innerHTML = html || '<p style="color: #666;">😴 ПОКА НИКТО НЕ ФЛУДИЛ...</p>';
+            });
+        }
+
+        function clearFlood() {
+            if(confirm('🗑️ ТОЧНО ОЧИСТИТЬ ВЕСЬ ФЛУД?')) {
+                if (database) {
+                    database.ref('floodMessages').remove();
+                    document.getElementById('floodResult').innerHTML = '<p style="color: #ff0066;">💀 ФЛУД ОЧИЩЕН!</p>';
+                }
+            }
+        }
+
+        function sendToIncel() { alert('👑 ГЛАВНЫЙ ИНЦЕЛ: "БРО, Я САМ ХЗ КАК ЗНАКОМИТЬСЯ..."'); increaseMadness(); }
+        function sendToGamer() { alert('🎮 ПРО ГЕЙМЕР: "Я В ИГРЕ 72 ЧАСА, НЕ МЕШАЙ!"'); increaseMadness(); }
+        function sendToClown() { alert('🤡 ГЛАВНЫЙ КЛОУН: "ТВОЯ МАМА СМЕЯЛАСЬ НАД МОЕЙ ШУТКОЙ!"'); increaseMadness(); }
+    </script>
+</body>
+</html>
