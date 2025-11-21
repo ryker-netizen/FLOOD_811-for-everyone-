@@ -402,7 +402,25 @@ p {
     font-size: clamp(1rem, 3vw, 1.2rem) !important;
     line-height: 1.6 !important;
 }
-        
+
+        /* === ФИКС ДЛЯ iOS === */
+@supports (-webkit-touch-callout: none) {
+    body, p, div, span {
+        font-family: 'Comic Neue', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-weight: 700 !important;
+        -webkit-font-smoothing: antialiased !important;
+    }
+    
+    h1, h2, h3 {
+        font-family: 'Press Start 2P', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        -webkit-font-smoothing: antialiased !important;
+    }
+    
+    p { 
+        font-size: clamp(1.3rem, 4vw, 1.7rem) !important;
+        line-height: 2 !important;
+    }
+}
     </style>
 </head>
 <body>
