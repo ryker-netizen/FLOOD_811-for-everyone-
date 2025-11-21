@@ -386,7 +386,24 @@
         line-height: 1.8 !important;
     }
 }
+/* === ФИКС ИНПУТА ДЛЯ iOS === */
+input, textarea {
+    font-family: 'Comic Neue', 'Courier New', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-size: 1.2rem !important;
+    font-weight: bold !important;
+    -webkit-appearance: none;
+    -webkit-border-radius: 0;
+}
 
+/* Если не поможет - жесткий фикс */
+@supports (-webkit-touch-callout: none) {
+    input, textarea, button {
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-size: 1.3rem !important;
+        font-weight: 600 !important;
+    }
+}
+        
     </style>
 </head>
 <body>
