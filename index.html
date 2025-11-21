@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ФЛУД 811 - ПСИХБОЛЬНИЦА</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -22,272 +24,360 @@
             --dark-bg: #0a0014;
         }
 
-        /* === УПРОЩЕННЫЕ АНИМАЦИИ === */
+        /* === РЕЖИМ РАДУГИ === */
+        .rainbow-mode {
+            background: linear-gradient(45deg, #ff0066, #ff00ff, #00ffff, #ffff00, #00ff88, #ff0066) !important;
+            background-size: 400% 400% !important;
+            animation: psychoRainbow 1s linear infinite !important;
+        }
+
+        @keyframes psychoRainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* === СУПЕР АНИМАЦИИ === */
         .psycho-item {
             opacity: 0;
-            transform: translateY(50px);
-            transition: all 0.6s ease;
+            transform: translateY(100px) rotate(10deg) scale(0.8);
+            transition: all 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            filter: blur(5px);
         }
 
         .psycho-item.in-view {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0) rotate(0deg) scale(1);
+            filter: blur(0);
         }
 
         .delay-1 { transition-delay: 0.1s; }
-        .delay-2 { transition-delay: 0.2s; }
-        .delay-3 { transition-delay: 0.3s; }
+        .delay-2 { transition-delay: 0.3s; }
+        .delay-3 { transition-delay: 0.5s; }
+        .delay-4 { transition-delay: 0.7s; }
+        .delay-5 { transition-delay: 0.9s; }
 
-        /* ПРОСТОЕ ДРОЖАНИЕ */
-        @keyframes simple-shake {
-            0%, 100% { transform: translateX(0); }
-            50% { transform: translateX(-5px); }
+        /* СУПЕР ДРОЖАНИЕ */
+        @keyframes super-shake {
+            0%, 100% { transform: translateX(0) rotate(0deg) scale(1); }
+            10% { transform: translateX(-10px) rotate(-2deg) scale(1.02); }
+            20% { transform: translateX(8px) rotate(2deg) scale(0.98); }
+            30% { transform: translateX(-6px) rotate(-1deg) scale(1.01); }
+            40% { transform: translateX(4px) rotate(1deg) scale(0.99); }
+            50% { transform: translateX(-2px) rotate(-0.5deg) scale(1); }
         }
 
         .super-shake {
-            animation: simple-shake 0.5s ease-in-out infinite;
+            animation: super-shake 2s ease-in-out infinite;
         }
 
-        /* ПРОСТОЕ СВЕЧЕНИЕ */
+        /* НЕОНОВОЕ СВЕЧЕНИЕ */
+        @keyframes neon-glow {
+            0%, 100% { 
+                text-shadow: 
+                    0 0 5px currentColor,
+                    0 0 10px currentColor,
+                    0 0 20px currentColor;
+            }
+            50% { 
+                text-shadow: 
+                    0 0 3px currentColor,
+                    0 0 6px currentColor,
+                    0 0 12px currentColor;
+            }
+        }
+
         .neon-glow {
-            text-shadow: 0 0 10px currentColor;
+            animation: neon-glow 1.5s ease-in-out infinite;
         }
 
         /* === ОСНОВНЫЕ СТИЛИ === */
         body {
             background: var(--dark-bg);
             color: white;
-            font-family: Arial, sans-serif;
+            font-family: 'Comic Neue', cursive, sans-serif;
             overflow-x: hidden;
             min-height: 100vh;
             background: 
-                radial-gradient(circle at 10% 20%, rgba(255,0,102,0.2) 0%, transparent 50%),
-                radial-gradient(circle at 90% 80%, rgba(0,255,136,0.2) 0%, transparent 50%),
-                linear-gradient(45deg, #0a0014, #1a0034);
+                radial-gradient(circle at 10% 20%, rgba(255,0,102,0.3) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(0,255,136,0.3) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(255,0,255,0.2) 0%, transparent 50%),
+                linear-gradient(45deg, #0a0014, #1a0034, #0a0014);
         }
 
-        /* ШКАЛА БЕЗУМИЯ */
+        /* === ШКАЛА БЕЗУМИЯ (ФИКСИРОВАННАЯ НА ВСЕМ ЭКРАНЕ) === */
         .madness-scroll-indicator {
             position: fixed;
             top: 0;
             left: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #ff0066, #ff00ff, #00ffff);
+            height: 6px;
+            background: linear-gradient(90deg, #ff0066, #ff00ff, #00ffff, #ffff00, #00ff88);
             width: 0%;
             z-index: 10000;
             transition: width 0.3s ease;
+            box-shadow: 0 0 10px #ff0066;
         }
 
         .madness-percent-label {
             position: fixed;
-            top: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.8);
+            top: 15px;
+            right: 20px;
+            background: rgba(0,0,0,0.9);
             color: #ff0066;
-            padding: 5px 10px;
-            border-radius: 5px;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-family: 'Press Start 2P', sans-serif;
             font-size: 0.7rem;
             z-index: 10001;
+            border: 2px solid #00ffff;
+            box-shadow: 0 0 15px #00ffff;
+            backdrop-filter: blur(10px);
         }
 
-        /* СЕКЦИИ */
+        /* === СЕКЦИИ === */
         .psycho-section {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 40px 20px;
-            border-bottom: 3px solid var(--psycho-red);
+            position: relative;
+            padding: 100px 20px 60px 20px;
+            border-bottom: 6px double var(--psycho-red);
             background: rgba(10, 0, 20, 0.7);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
         }
 
         .container {
             width: 100%;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 0 20px;
+            position: relative;
+            z-index: 1;
         }
 
-        /* ТИПОГРАФИЯ */
+        /* === ТИПОГРАФИЯ === */
         h1, h2, h3 {
+            font-family: 'Press Start 2P', cursive, sans-serif;
             text-transform: uppercase;
             line-height: 1.3;
+            letter-spacing: 2px;
         }
 
-        h1 { font-size: 2.5rem; margin-bottom: 1rem; color: var(--psycho-red); }
-        h2 { font-size: 1.8rem; margin-bottom: 1rem; color: var(--psycho-blue); }
-        h3 { font-size: 1.3rem; margin-bottom: 1rem; color: var(--psycho-green); }
-        p { font-size: 1.1rem; line-height: 1.5; color: #ccc; margin-bottom: 1rem; }
+        h1 { font-size: clamp(2.5rem, 8vw, 4rem); margin-bottom: 1.5rem; }
+        h2 { font-size: clamp(1.8rem, 6vw, 3rem); margin-bottom: 1.5rem; }
+        h3 { font-size: clamp(1.2rem, 4vw, 1.8rem); margin-bottom: 1rem; }
+        p { font-size: clamp(1rem, 3vw, 1.2rem); line-height: 1.6; color: #ccc; }
 
-        /* КНОПКИ */
+        /* === КНОПКИ === */
         .psycho-btn {
             display: inline-block;
             padding: 1rem 2rem;
-            background: var(--psycho-red);
+            background: linear-gradient(135deg, var(--psycho-red), var(--psycho-purple), var(--psycho-blue));
             color: white;
             text-decoration: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-weight: bold;
-            border: 2px solid var(--psycho-yellow);
+            border: 3px solid var(--psycho-yellow);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            font-family: 'Press Start 2P', cursive, sans-serif;
             margin: 0.5rem;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 15px var(--psycho-red), 0 0 30px var(--psycho-purple), inset 0 0 15px rgba(255,255,255,0.1);
         }
 
         .psycho-btn:hover {
-            transform: scale(1.05);
-            background: var(--psycho-purple);
+            transform: scale(1.1) rotate(3deg);
+            background: linear-gradient(135deg, var(--psycho-blue), var(--psycho-green), var(--psycho-yellow));
+            box-shadow: 0 0 25px var(--psycho-blue), 0 0 50px var(--psycho-green);
         }
 
         .telegram-btn {
-            background: #0088cc;
+            background: linear-gradient(135deg, #0088cc, #00aced);
+            border: 2px solid #fff;
+            box-shadow: 0 0 20px #0088cc;
         }
 
-        /* КАРТОЧКИ */
+        .telegram-btn:hover {
+            background: linear-gradient(135deg, #00aced, #0088cc);
+            box-shadow: 0 0 35px #00aced;
+        }
+
+        /* === КАРТОЧКИ === */
         .character-card {
-            background: rgba(255,255,255,0.1);
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
             padding: 1.5rem;
             border-radius: 15px;
             border: 2px solid;
-            margin: 1rem;
-            transition: all 0.3s ease;
+            backdrop-filter: blur(15px);
+            margin: 1rem 0;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .character-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-10px) rotate(2deg) scale(1.03);
+            box-shadow: 0 15px 35px rgba(255, 0, 102, 0.3), 0 0 60px rgba(255, 0, 102, 0.2);
         }
 
-        /* СЕТКА */
+        /* === СЕТКА === */
         .super-grid { 
             display: grid; 
-            gap: 2rem; 
-            margin: 2rem 0;
+            gap: 2rem;
+            width: 100%;
         }
+        
+        .grid-cols-1 { grid-template-columns: 1fr; }
         .grid-cols-2 { grid-template-columns: 1fr; }
         .grid-cols-3 { grid-template-columns: 1fr; }
+        .grid-cols-4 { grid-template-columns: 1fr; }
 
-        /* ЧАТ */
+        /* === ЧАТ === */
         .chat-message {
-            background: rgba(255,255,255,0.08);
-            padding: 1rem;
-            margin: 0.5rem 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+            padding: 1.5rem;
+            margin: 1rem 0;
             border-left: 4px solid var(--psycho-red);
-            border-radius: 8px;
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
         }
 
-        /* ПРОГРЕСС БАР */
+        /* === ПРОГРЕСС БАР === */
         .madness-bar {
             width: 100%;
-            height: 20px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
+            height: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
             margin: 1.5rem 0;
-            border: 1px solid var(--psycho-red);
+            position: relative;
+            border: 2px solid var(--psycho-red);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
         }
 
         .madness-level {
             height: 100%;
-            background: linear-gradient(90deg, var(--psycho-green), var(--psycho-red));
+            background: linear-gradient(90deg, var(--psycho-green), var(--psycho-yellow), var(--psycho-red), var(--psycho-purple));
             width: 0%;
-            transition: width 0.5s ease;
+            transition: width 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
 
-        /* ТЕКСТ */
+        /* === ИНТЕРАКТИВНЫЕ БЛОКИ === */
+        .interactive-box {
+            background: linear-gradient(135deg, rgba(255,0,102,0.15), rgba(255,0,255,0.1));
+            padding: 1.5rem;
+            border: 2px solid var(--psycho-red);
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .interactive-box:hover {
+            transform: scale(1.02) rotate(1deg);
+            background: linear-gradient(135deg, rgba(255,0,102,0.2), rgba(255,0,255,0.15));
+            box-shadow: 0 10px 25px rgba(255, 0, 102, 0.25);
+        }
+
+        /* === ДОПОЛНИТЕЛЬНЫЕ СТИЛИ === */
         .text-center { text-align: center; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .mt-4 { margin-top: 1rem; }
+        .mt-8 { margin-top: 2rem; }
 
-        /* АДАПТИВ */
-        @media (min-width: 768px) {
-            .grid-cols-2 { grid-template-columns: 1fr 1fr; }
-            .grid-cols-3 { grid-template-columns: 1fr 1fr 1fr; }
-            h1 { font-size: 3rem; }
-        }
-
+        /* === ФУТЕР === */
         footer {
             text-align: center;
-            padding: 15px;
-            background: rgba(0,0,0,0.9);
-            border-top: 2px solid #ff0064;
+            padding: 4px 0;
+            background: rgba(0, 0, 0, 0.95);
+            border-top: 3px solid #ff0064;
+            font-size: 0.5rem;
             color: #00FF7F;
-            font-size: 0.8rem;
+            font-family: 'Press Start 2P', 'Courier New', monospace, sans-serif;
+            text-shadow: 1px 1px 0 #000, 2px 2px 0 rgba(0, 200, 255, 0.3);
+            font-weight: bold;
+            letter-spacing: 1px;
         }
 
-/* === АДАПТИВ ДЛЯ МОБИЛКИ === */
-@media (max-width: 768px) {
-    .container {
-        padding: 0 15px;
-    }
-    
-    .psycho-section {
-        padding: 40px 15px;
-        min-height: auto;
-    }
-    
-    h1 { font-size: 2rem; }
-    h2 { font-size: 1.5rem; }
-    h3 { font-size: 1.2rem; }
-    
-    .psycho-btn {
-        padding: 12px 20px;
-        font-size: 0.9rem;
-        margin: 5px;
-        display: block;
-        width: 100%;
-        max-width: 300px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    
-    .character-card {
-        margin: 10px 0;
-        padding: 20px;
-    }
-    
-    .super-grid.grid-cols-2,
-    .super-grid.grid-cols-3 {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-    
-    .madness-percent-label {
-        position: relative;
-        top: auto;
-        right: auto;
-        margin: 10px auto;
-        display: inline-block;
-    }
-}
+        /* === АДАПТИВ ДЛЯ МОБИЛЬНЫХ === */
+        @media (max-width: 768px) {
+            .psycho-section { 
+                padding: 80px 15px 40px 15px; 
+                min-height: auto;
+            }
+            
+            .container {
+                padding: 0 15px;
+            }
+            
+            .psycho-btn {
+                padding: 12px 20px;
+                margin: 5px;
+                display: block;
+                width: 100%;
+                max-width: 280px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            
+            .character-card {
+                padding: 1.2rem;
+                margin: 0.8rem 0;
+                min-height: 250px;
+            }
+            
+            .interactive-box {
+                padding: 1.2rem;
+                min-height: 180px;
+            }
+            
+            .madness-percent-label {
+                top: 10px;
+                right: 10px;
+                padding: 8px 12px;
+                font-size: 0.6rem;
+            }
+            
+            h1 { font-size: 2rem; margin-bottom: 1rem; }
+            h2 { font-size: 1.5rem; margin-bottom: 1rem; }
+            h3 { font-size: 1.1rem; margin-bottom: 0.8rem; }
+        }
 
-/* === ДЛЯ ТЕЛЕФОНА В АЛЬБОМНОЙ ОРИЕНТАЦИИ === */
-@media (max-width: 768px) and (orientation: landscape) {
-    .psycho-section {
-        min-height: 100vh;
-        padding: 20px;
-    }
-    
-    .super-grid.grid-cols-2 {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-/* === ОБЩИЕ СТИЛИ ДЛЯ КОНТЕЙНЕРОВ === */
-.container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-.character-card {
-    min-height: 200px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
+        /* === ДЛЯ ПК === */
+        @media (min-width: 1024px) {
+            .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+            .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+            .grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+            
+            .psycho-section {
+                padding: 120px 40px 80px 40px;
+            }
+            
+            .container {
+                padding: 0 40px;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- ШКАЛА БЕЗУМИЯ -->
+    <!-- ШКАЛА БЕЗУМИЯ (ФИКСИРОВАННАЯ - ЕЗДИТ ВМЕСТЕ СКРОЛЛОМ) -->
     <div class="madness-scroll-indicator" id="madnessScroll"></div>
     <div class="madness-percent-label" id="madnessPercentLabel">БЕЗУМИЕ: 0%</div>
 
@@ -295,17 +385,17 @@
     <div class="psycho-section">
         <div class="container text-center">
             <div class="psycho-item delay-1">
-                <h1 class="super-shake neon-glow">ФЛУД 811</h1>
+                <h1 class="super-shake neon-glow" style="color: var(--psycho-red);">ФЛУД 811</h1>
             </div>
             <div class="psycho-item delay-2">
-                <h2 class="neon-glow">ПСИХБОЛЬНИЦА</h2>
+                <h2 class="neon-glow" style="color: var(--psycho-blue);">ПСИХБОЛЬНИЦА ПРО</h2>
             </div>
             <div class="psycho-item delay-3">
-                <p>🏥 <span class="neon-glow" style="color: var(--psycho-yellow);">ЦЕНТР РЕАБИЛИТАЦИИ ИНЦЕЛОВ И АУТСАЙДЕРОВ</span> 💀</p>
+                <p class="mb-8">🏥 <span class="neon-glow" style="color: var(--psycho-yellow);">ЦЕНТР РЕАБИЛИТАЦИИ ИНЦЕЛОВ И АУТСАЙДЕРОВ</span> 💀</p>
             </div>
             <div class="psycho-item delay-1">
-                <button class="psycho-btn" onclick="addFloodPage()">💩 ФЛУДИЛКА</button>
-                <button class="psycho-btn" onclick="activateRainbowMode()">🌈 РАДУГА</button>
+                <button class="psycho-btn" onclick="activateChaosScene()">🚨 АКТИВИРОВАТЬ ХАОС</button>
+                <button class="psycho-btn" onclick="showOwnerScene()">👑 ВЛАДЕЛЕЦ ФЛУДА</button>
                 <button class="psycho-btn telegram-btn" onclick="window.open('https://t.me/Kur_68', '_blank')">👑 @Kur_68</button>
             </div>
         </div>
@@ -318,21 +408,21 @@
                 <h2 class="neon-glow" style="color: var(--psycho-green);">ЧТО ЭТО ЗА ПИЗДЕЦ?</h2>
             </div>
             <div class="super-grid grid-cols-2">
-                <div class="psycho-item delay-2 character-card" style="border-color: var(--psycho-red);">
-                    <h3>🤪 НАША ИДЕОЛОГИЯ</h3>
-                    <p>Собрать всех долбоебов в одном месте. Здесь нет правил, нет модерации, только чистый хаос.</p>
+                <div class="psycho-item delay-2 interactive-box" onclick="alert('ДА, МЫ ДЕБИЛЫ!')">
+                    <h3 style="color: var(--psycho-red);">🤪 НАША ИДЕОЛОГИЯ</h3>
+                    <p>Собрать всех долбоебов в одном месте. Здесь нет правил, нет модерации, только чистый хаос, кринж и инцельство.</p>
                 </div>
-                <div class="psycho-item delay-3 character-card" style="border-color: var(--psycho-blue);">
-                    <h3>👑 ВЛАДЕЛЕЦ</h3>
+                <div class="psycho-item delay-3 interactive-box" onclick="showOwnerScene()">
+                    <h3 style="color: var(--psycho-blue);">👑 ВЛАДЕЛЕЦ</h3>
                     <p>Тот самый легендарный создатель этого ада. Главный инцел и организатор безумия.</p>
                     <p style="color: var(--psycho-red); margin-top: 1rem;">💊 Телеграм: @Kur_68</p>
                 </div>
             </div>
-            <div class="psycho-item delay-1 mt-8">
+            <div class="psycho-item delay-4 mt-8">
                 <div class="madness-bar">
                     <div class="madness-level" id="madnessMeter"></div>
                 </div>
-                <p class="text-center">УРОВЕНЬ БЕЗУМИЯ: <span id="madnessPercent" style="color: var(--psycho-red); font-weight: bold;">0%</span></p>
+                <p class="text-center">УРОВЕНЬ БЕЗУМИЯ: <span id="madnessPercent" class="neon-glow" style="color: var(--psycho-red);">0%</span></p>
             </div>
         </div>
     </div>
@@ -341,30 +431,94 @@
     <div class="psycho-section">
         <div class="container">
             <div class="psycho-item delay-1 text-center">
-                <h2 class="neon-glow" style="color: var(--psycho-yellow);">🤪 ГЕРОИ ФЛУДА</h2>
+                <h2 class="neon-glow" style="color: var(--psycho-yellow);">🤪 ГЕРОИ НАШЕГО АДА</h2>
             </div>
             <div class="super-grid grid-cols-3">
                 <div class="psycho-item delay-2 character-card" style="border-color: var(--psycho-red);">
-                    <h3>👑 ГЛАВНЫЙ ИНЦЕЛ</h3>
-                    <p>Создатель этого безумия. Общается исключительно криповыми мемами.</p>
-                    <button class="psycho-btn" onclick="sendToIncel()">👑 НАПИСАТЬ</button>
+                    <h3 style="color: var(--psycho-red);">👑 ГЛАВНЫЙ ИНЦЕЛ</h3>
+                    <p>создатель этого безумия. общается исключительно раз в миллион лет.</p>
+                    <p style="color: var(--psycho-red); margin-top: 1rem;">💊 статус: в активном поиске пиздюлей</p>
+                    <button class="psycho-btn" onclick="sendToIncel()">👑 НАПИСАТЬ ХУЙНИ!</button>
                 </div>
                 <div class="psycho-item delay-3 character-card" style="border-color: var(--psycho-blue);">
-                    <h3>🎮 ПРО ГЕЙМЕР</h3>
-                    <p>Живет в рехабе. Не выходит уже 3 года.</p>
-                    <button class="psycho-btn" onclick="sendToGamer()">🎮 НАПИСАТЬ</button>
+                    <h3 style="color: var(--psycho-blue);">🎮 ПРО ГЕЙМЕР</h3>
+                    <p>живет в хрущевке. не выходит уже 3 года.</p>
+                    <p style="color: var(--psycho-green);">🎯 статус: сосёт (24/7)</p>
+                    <button class="psycho-btn" onclick="sendToGamer()">🎮 НАПИСАТЬ ПРЯМО СЕЙЧАС!</button>
                 </div>
-                <div class="psycho-item delay-1 character-card" style="border-color: var(--psycho-green);">
-                    <h3>🤡 ГЛАВНЫЙ КЛОУН</h3>
-                    <p>Печатает такой кринж, что хочется вырвать глаза.</p>
-                    <button class="psycho-btn" onclick="sendToClown()">🤡 НАПИСАТЬ</button>
+                <div class="psycho-item delay-4 character-card" style="border-color: var(--psycho-green);">
+                    <h3 style="color: var(--psycho-green);">🤡 ГЛАВНЫЙ КЛОУН</h3>
+                    <p>печатает такой кринж, что хочется вырвать глаза.</p>
+                    <p style="color: var(--psycho-red);">🤡 статус: шутит про твою маму и говно</p>
+                    <button class="psycho-btn" onclick="sendToClown()">🤡 НАЛИТЬ ГАВНА В ЛС!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ЧАТ -->
+    <div class="psycho-section">
+        <div class="container">
+            <div class="psycho-item delay-1 text-center">
+                <h2 class="neon-glow" style="color: var(--psycho-purple);">💬 ЖИВОЙ ЧАТ ХАОСА</h2>
+            </div>
+            <div id="chatContainer" class="mt-8">
+                <div class="psycho-item delay-2 chat-message"><strong>👑 ГЛАВНЫЙ ИНЦЕЛ:</strong> ребят, я опять попробовал познакомиться с девушкой...</div>
+                <div class="psycho-item delay-3 chat-message"><strong>🤡 ГЛАВНЫЙ КЛОУН:</strong> И ЧТО? ОПЯТЬ ПОЛУЧИЛ ПО ЕБАЛУ НА 100 ЛЕТ ВПЕРЕД? 😂</div>
+                <div class="psycho-item delay-4 chat-message"><strong>🎮 ПРО ГЕЙМЕР:</strong> пацаны, а вы видели новый патч в 811? там теперь можно...</div>
+            </div>
+            <div class="psycho-item delay-5 mt-8">
+                <div class="super-grid grid-cols-4">
+                    <button class="psycho-btn" onclick="addFloodPage()">💩 КРИНЖ СООБЩЕНИЕ</button>
+                    <button class="psycho-btn" onclick="clearChatScene()">🗑️ ОЧИСТИТЬ ХАОС</button>
+                    <button class="psycho-btn" onclick="showOwnerScene()">📞 @Kur_68</button>
+                    <button class="psycho-btn" onclick="activateRainbowMode()">🤪 СТАТЬ ЕБАНУТЫМ!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- СТАТИСТИКА -->
+    <div class="psycho-section">
+        <div class="container text-center">
+            <div class="psycho-item delay-1"><h2 class="neon-glow" style="color: var(--psycho-blue);">📊 СТАТИСТИКА АДА</h2></div>
+            <div class="super-grid grid-cols-4 mt-8">
+                <div class="psycho-item delay-2"><div style="font-size: 3rem; color: var(--psycho-red);" class="neon-glow">98,9%</div><div style="color: #ccc; font-size: 1rem;">ИНЦЕЛОВ</div></div>
+                <div class="psycho-item delay-3"><div style="font-size: 3rem; color: var(--psycho-green);" class="neon-glow">24/7</div><div style="color: #ccc; font-size: 1rem;">КРИНЖА</div></div>
+                <div class="psycho-item delay-4"><div style="font-size: 3rem; color: var(--psycho-blue);" class="neon-glow">0</div><div style="color: #ccc; font-size: 1rem;">ДЕВУШЕК</div></div>
+                <div class="psycho-item delay-5"><div style="font-size: 3rem; color: var(--psycho-yellow);" class="neon-glow">∞</div><div style="color: #ccc; font-size: 1rem;">ТУПОСТИ</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ФИНАЛ -->
+    <div class="psycho-section">
+        <div class="container text-center">
+            <div class="psycho-item delay-1"><h2 class="neon-glow" style="color: var(--psycho-red);">⚠️ КРИТИЧЕСКОЕ ПРЕДУПРЕЖДЕНИЕ</h2></div>
+            <div class="psycho-item delay-2">
+                <p style="margin: 2rem 0; line-height: 2;">
+                    🚨 <span class="neon-glow" style="color: var(--psycho-yellow);">ВХОДЯ СЮДА - ТЫ ТЕРЯЕШЬ РАЗУМ НАВСЕГДА</span><br>
+                    💀 <span class="neon-glow" style="color: var(--psycho-red);">ФЛУД 811 - ЭТО НЕ ПРОСТО ЧАТ, ЭТО ДИАГНОЗ</span><br>
+                    🤪 <span class="neon-glow" style="color: var(--psycho-purple);">МЫ ВСЕ ЗДЕСЬ ЕБАНУТЫЕ И ЭТИМ ГОРДИМСЯ</span>
+                </p>
+            </div>
+            <div class="psycho-item delay-3">
+                <div class="super-grid grid-cols-3">
+                    <button class="psycho-btn" onclick="joinInfoChannel()">🤪 СТАТЬ ЕБАНУТЫМ!</button>
+                    <button class="psycho-btn telegram-btn" onclick="window.open('https://t.me/Kur_68', '_blank')">👑 @Kur_68</button>
+                    <button class="psycho-btn" onclick="runAway()">🏃‍♂️ БЕЖАТЬ НАХУЙ!</button>
+                </div>
+            </div>
+            <div class="psycho-item delay-4 mt-8">
+                <div style="background: linear-gradient(135deg, rgba(255,0,102,0.2), rgba(255,0,255,0.1)); border: 3px solid var(--psycho-red); padding: 1.5rem; border-radius: 15px; backdrop-filter: blur(10px);">
+                    <p style="color: var(--psycho-red);" class="neon-glow">⚠️ <strong>ВНИМАНИЕ:</strong> йоу, администрация не несет ответственности за потерянные мозги, девственность и адекватность! #малюваня</p>
                 </div>
             </div>
         </div>
     </div>
 
     <footer>
-        @Dicko1Prim | @Kur_68 | 2025 
+        @Dicko1Prim | @Kur_68 2025 telegram
     </footer>
 
     <script>
@@ -405,20 +559,28 @@
                 observer.observe(item);
             });
 
-            // Скролл индикатор
+            // СКОРОЛЛ ИНДИКАТОР - ФИКСИРОВАННЫЙ
             window.addEventListener('scroll', function() {
                 const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
                 const scrolled = window.scrollY;
                 const scrollPercent = Math.min(100, Math.floor((scrolled / scrollHeight) * 100));
                 
-                document.getElementById('madnessScroll').style.width = scrollPercent + '%';
-                document.getElementById('madnessPercentLabel').textContent = `БЕЗУМИЕ: ${scrollPercent}%`;
+                const indicator = document.getElementById('madnessScroll');
+                const label = document.getElementById('madnessPercentLabel');
+                
+                if (indicator) indicator.style.width = scrollPercent + '%';
+                if (label) label.textContent = `БЕЗУМИЕ: ${scrollPercent}%`;
             });
         });
 
         function updateMadnessMeter() {
-            document.getElementById('madnessMeter').style.width = madnessLevel + '%';
-            document.getElementById('madnessPercent').textContent = madnessLevel + '%';
+            const meter = document.getElementById('madnessMeter');
+            const percent = document.getElementById('madnessPercent');
+            
+            if (meter && percent) {
+                meter.style.width = madnessLevel + '%';
+                percent.textContent = madnessLevel + '%';
+            }
         }
 
         function increaseMadness() {
@@ -426,80 +588,228 @@
             updateMadnessMeter();
         }
 
+        // === РАДУГА И ХАОС ===
         function activateRainbowMode() {
-            document.body.style.background = 'linear-gradient(45deg, #ff0066, #ff00ff, #00ffff, #ffff00, #00ff88)';
+            document.body.classList.add('rainbow-mode');
             madnessLevel = 100;
             updateMadnessMeter();
+            
+            document.querySelectorAll('.psycho-btn').forEach(btn => {
+                btn.classList.add('super-shake');
+            });
         }
 
-        // Функции флудилки
+        function activateChaosScene() {
+            // СУПЕР ХАОС АНИМАЦИЯ
+            document.body.style.animation = 'psychoRainbow 0.1s infinite';
+            
+            setTimeout(() => {
+                document.body.innerHTML = `
+                    <div style="background: #ff0066; color: #000; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: 'Press Start 2P', sans-serif; padding: 2rem;">
+                        <div style="font-size: 4rem; animation: super-shake 0.5s infinite">🌪️💀</div>
+                        <div style="font-size: 2rem; margin: 1rem 0; animation: neon-glow 0.3s infinite">ХАОС АКТИВИРОВАН!</div>
+                        <div style="color: #330033; font-size: 1.5rem;">FIREBASE ХАОС РАБОТАЕТ!</div>
+                        <button class="psycho-btn" onclick="window.location.reload()" style="margin-top: 2rem; padding: 1rem 2rem; background: #000; color: #ff0066; border: none; border-radius: 10px; font-family: 'Press Start 2P', sans-serif; cursor: pointer; animation: super-shake 1s infinite">
+                            ВЕРНУТЬСЯ В АД
+                        </button>
+                    </div>
+                `;
+            }, 1000);
+            
+            increaseMadness();
+        }
+
+        function showOwnerScene() {
+            document.body.innerHTML = `
+                <div style="background: #000; color: #ff0066; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: 'Press Start 2P', sans-serif; padding: 2rem;">
+                    <div style="width: 200px; height: 200px; background: linear-gradient(45deg, #ff0066, #ff00ff, #00ffff); border-radius: 50%; border: 6px solid #ffff00; display: flex; align-items: center; justify-content: center; font-size: 4rem; margin-bottom: 2rem; box-shadow: 0 0 50px #ff0066; animation: psychoRainbow 2s infinite">👑💀</div>
+                    <div style="font-size: 1.5rem; margin: 1rem 0; text-shadow: 0 0 20px #ff0066; animation: neon-glow 1s infinite">БОГ ГАВНА 811</div>
+                    <div style="color: #00ffff; font-size: 1.2rem; margin: 0.5rem 0; animation: neon-glow 1.5s infinite">@Kur_68</div>
+                    <button class="psycho-btn telegram-btn" onclick="window.open('https://t.me/Kur_68', '_blank')">👑 @Kur_68</button>
+                    <button class="psycho-btn" onclick="window.location.reload()" style="margin-top: 1rem; padding: 1rem 2rem; background: #ff0066; color: white; border: none; border-radius: 10px; font-family: 'Press Start 2P', sans-serif; cursor: pointer; font-size: 0.8rem;">
+                        🏃‍♂️ СБЕЖАТЬ ПОКА НЕ ПОЗДНО
+                    </button>
+                </div>
+            `;
+            increaseMadness();
+        }
+
+        // === ФЛУДИЛЬНЯ FIREBASE ===
         function addFloodPage() {
             document.body.innerHTML = `
-                <div style="background: #0a0014; color: white; min-height: 100vh; padding: 20px; text-align: center;">
-                    <h1 style="color: #ff0066;">💩 ФЛУДИЛКА 811</h1>
-                    <textarea id="floodText" placeholder="ПИШИ СЮДА СВОЙ КРИНЖ..." style="width: 100%; max-width: 500px; height: 100px; background: #111; color: #00ff88; border: 2px solid #ff0066; padding: 15px; margin: 20px 0; border-radius: 8px;"></textarea>
-                    <div>
-                        <button class="psycho-btn" onclick="postFlood()">💩 ОТПРАВИТЬ</button>
-                        <button class="psycho-btn" onclick="viewFlood()">👀 ПОСМОТРЕТЬ</button>
-                        <button class="psycho-btn" onclick="clearFlood()">🗑️ ОЧИСТИТЬ</button>
-                        <button class="psycho-btn" onclick="window.location.reload()">🏃‍♂️ НАЗАД</button>
+                <div style="
+                    background: #000;
+                    color: #00ff88;
+                    height: 100vh;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    text-align: center;
+                    font-family: 'Press Start 2P', sans-serif;
+                    padding: 2rem;
+                ">
+                    <div style="font-size: 3rem;">💩📝</div>
+                    <div style="font-size: 1.5rem; margin: 1rem 0;">ФЛУДИЛЬНЯ 811 FIREBASE</div>
+                    <div style="color: #ffff00; margin-bottom: 2rem;">ВСЕ ВИДЯТ ТВОЙ КРИНЖ В ОБЛАКЕ!</div>
+                    
+                    <textarea 
+                        id="floodText" 
+                        placeholder="ПИШИ СЮДА СВОЙ КРИНЖ..." 
+                        style="
+                            width: 90%;
+                            height: 150px;
+                            background: #111;
+                            color: #00ff88;
+                            border: 3px solid #ff0066;
+                            border-radius: 10px;
+                            padding: 1rem;
+                            font-family: 'Comic Neue', cursive, sans-serif;
+                            font-size: 1rem;
+                            resize: none;
+                            margin-bottom: 1rem;
+                        "
+                    ></textarea>
+                    
+                    <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; justify-content: center;">
+                        <button class="psycho-btn" onclick="postFloodToFirebase()" style="padding: 1rem 1.5rem; font-size: 0.8rem;">
+                            💩 ОТПРАВИТЬ В ОБЛАКО
+                        </button>
+                        
+                        <button class="psycho-btn" onclick="viewFloodFromFirebase()" style="padding: 1rem 1.5rem; font-size: 0.8rem;">
+                            👀 ПОСМОТРЕТЬ ФЛУД
+                        </button>
                     </div>
-                    <div id="floodResult" style="margin-top: 20px;"></div>
+                    
+                    <button class="psycho-btn" onclick="window.location.reload()" style="padding: 1rem 1.5rem; font-size: 0.7rem;">
+                        🏃‍♂️ ВЕРНУТЬСЯ
+                    </button>
+                    
+                    <div id="floodResult" style="margin-top: 1rem; color: #ffff00; font-size: 0.8rem;"></div>
                 </div>
             `;
         }
 
-        function postFlood() {
-            const text = document.getElementById('floodText').value.trim();
-            if (!text) {
-                alert('⚠️ ВВЕДИ ХОТЬ ЧТО-ТО!');
+        function postFloodToFirebase() {
+            const text = document.getElementById('floodText').value;
+            if (text.trim() === '') {
+                document.getElementById('floodResult').textContent = '⚠️ ВВЕДИ ХОТЬ ЧТО-ТО!';
                 return;
             }
             
-            if (database) {
-                database.ref('floodMessages').push({
-                    text: text,
-                    time: new Date().toLocaleTimeString(),
-                    timestamp: Date.now()
-                });
-                document.getElementById('floodResult').innerHTML = '<p style="color: #00ff88;">✅ СООБЩЕНИЕ ОТПРАВЛЕНО!</p>';
-                document.getElementById('floodText').value = '';
-            }
+            database.ref('floodMessages').push({
+                text: text,
+                time: new Date().toLocaleTimeString(),
+                timestamp: Date.now()
+            });
+            
+            document.getElementById('floodResult').textContent = '✅ ТВОЙ КРИНЖ В ОБЛАКЕ!';
+            document.getElementById('floodText').value = '';
+            increaseMadness();
         }
 
-        function viewFlood() {
-            if (!database) return;
+        function viewFloodFromFirebase() {
+            const floodResult = document.getElementById('floodResult');
+            floodResult.innerHTML = '🔄 ЗАГРУЗКА ИЗ ОБЛАКА...';
             
-            database.ref('floodMessages').orderByChild('timestamp').limitToLast(20).on('value', (snapshot) => {
+            database.ref('floodMessages').orderByChild('timestamp').limitToLast(50).on('value', (snapshot) => {
                 const messages = [];
                 snapshot.forEach((childSnapshot) => {
                     messages.push(childSnapshot.val());
                 });
                 
-                let html = '';
-                messages.reverse().forEach(msg => {
-                    html += `<div class="chat-message">
-                        <strong style="color: #ff0066;">💩 АНОНИМ:</strong> ${msg.text}
-                        <div style="color: #666; font-size: 0.8rem;">${msg.time}</div>
+                if (messages.length === 0) {
+                    floodResult.innerHTML = '😴 ПОКА НИКТО НЕ ФЛУДИЛ...';
+                    return;
+                }
+                
+                messages.sort((a, b) => a.timestamp - b.timestamp);
+                
+                let floodHTML = '<div style="text-align: left; max-height: 300px; overflow-y: auto; background: #111; padding: 1rem; border-radius: 10px; margin-top: 1rem;">';
+                messages.forEach(msg => {
+                    floodHTML += `<div style="border-bottom: 1px solid #333; padding: 0.5rem 0;">
+                        <span style="color: #ff0066;">💩 АНОНИМ:</span> ${msg.text}
+                        <div style="color: #666; font-size: 0.6rem;">${msg.time} (ОБЛАКО)</div>
                     </div>`;
                 });
+                floodHTML += '</div>';
                 
-                document.getElementById('floodResult').innerHTML = html || '<p style="color: #666;">😴 ПОКА НИКТО НЕ ФЛУДИЛ...</p>';
+                floodResult.innerHTML = floodHTML;
             });
         }
 
-        function clearFlood() {
-            if(confirm('🗑️ ТОЧНО ОЧИСТИТЬ ВЕСЬ ФЛУД?')) {
-                if (database) {
-                    database.ref('floodMessages').remove();
-                    document.getElementById('floodResult').innerHTML = '<p style="color: #ff0066;">💀 ФЛУД ОЧИЩЕН!</p>';
-                }
-            }
+        // === КРУТЫЕ СЦЕНКИ ДЛЯ ПЕРСОНАЖЕЙ ===
+        function sendToIncel() {
+            document.body.innerHTML = `
+                <div style="background: #000; color: #ff0066; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: 'Press Start 2P', sans-serif; padding: 2rem;">
+                    <div style="font-size: 4rem;">👑😭</div>
+                    <div style="font-size: 1.5rem; margin: 1rem 0;">ГЛАВНЫЙ ИНЦЕЛ</div>
+                    <div style="color: #00ffff; margin: 1rem 0; font-size: 1.2rem;">"БРО, Я САМ ХЗ КАК ЗНАКОМИТЬСЯ С ДЕВУШКАМИ..."</div>
+                    <div style="color: #ffff00; margin: 1rem 0;">💀 СТАТУС: ОПЯТЬ ПОЛУЧИЛ ПО ЕБАЛУ</div>
+                    <button class="psycho-btn" onclick="window.location.reload()" style="margin-top: 2rem;">ВЕРНУТЬСЯ В АД</button>
+                </div>
+            `;
+            increaseMadness();
+        }
+        
+        
+        function sendToGamer() {
+            document.body.innerHTML = `
+                <div style="background: #000; color: #00ff88; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: 'Press Start 2P', sans-serif; padding: 2rem;">
+                    <div style="font-size: 4rem;">🎮🤓</div>
+                    <div style="font-size: 1.5rem; margin: 1rem 0;">ПРО ГЕЙМЕР</div>
+                    <div style="color: #ffff00; margin: 1rem 0; font-size: 1.2rem;">"Я В ИГРЕ 72 ЧАСА, НЕ МЕШАЙ!"</div>
+                    <div style="color: #ff0066; margin: 1rem 0;">🎯 СТАТУС: КАЧАЕТ 100-Й УРОВЕНЬ</div>
+                    <button class="psycho-btn" onclick="window.location.reload()" style="margin-top: 2rem;">ВЕРНУТЬСЯ В АД</button>
+                </div>
+            `;
+            increaseMadness();
         }
 
-        function sendToIncel() { alert('👑 ГЛАВНЫЙ ИНЦЕЛ: "БРО, Я САМ ХЗ КАК ЗНАКОМИТЬСЯ..."'); increaseMadness(); }
-        function sendToGamer() { alert('🎮 ПРО ГЕЙМЕР: "Я В ИГРЕ 72 ЧАСА, НЕ МЕШАЙ!"'); increaseMadness(); }
-        function sendToClown() { alert('🤡 ГЛАВНЫЙ КЛОУН: "ТВОЯ МАМА СМЕЯЛАСЬ НАД МОЕЙ ШУТКОЙ!"'); increaseMadness(); }
+        function sendToClown() {
+            document.body.innerHTML = `
+                <div style="background: #000; color: #ffff00; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: 'Press Start 2P', sans-serif; padding: 2rem;">
+                    <div style="font-size: 4rem;">🤡😂</div>
+                    <div style="font-size: 1.5rem; margin: 1rem 0;">ГЛАВНЫЙ КЛОУН</div>
+                    <div style="color: #ff00ff; margin: 1rem 0; font-size: 1.2rem;">"ТВОЯ МАМА СМЕЯЛАСЬ НАД МОЕЙ ШУТКОЙ!"</div>
+                    <div style="color: #00ffff; margin: 1rem 0;">🎪 СТАТУС: ШУТИТ ПРО ТВОЮ СЕМЬЮ</div>
+                    <button class="psycho-btn" onclick="window.location.reload()" style="margin-top: 2rem;">ВЕРНУТЬСЯ В АД</button>
+                </div>
+            `;
+            increaseMadness();
+        }
+
+        function clearChatScene() {
+            if(confirm('🗑️ ТОЧНО ОЧИСТИТЬ ВЕСЬ ФЛУД ИЗ ОБЛАКА?')) {
+                database.ref('floodMessages').remove();
+                alert('💀 ОБЛАКО ОЧИЩЕНО!');
+            }
+            increaseMadness();
+        }
+
+function runAway() {
+    if(confirm('🏃‍♂️ ТОЧНО ХОЧЕШЬ СБЕЖАТЬ? ТЫ УПУСТИШЬ СТОЛЬКО КРИНЖА ИЗ ОБЛАКА! 💀')) {
+        // Пытаемся закрыть вкладку
+        window.close();
+        
+        // Если не получилось - открываем пустую страницу
+        setTimeout(() => {
+            window.location.href = 'about:blank';
+            // И пытаемся назад в историю (если открыто в новой вкладке)
+            window.history.back();
+        }, 50);
+        
+        // Последняя попытка - редирект на гугл (шутка)
+        setTimeout(() => {
+            window.location.href = 'https://www.google.com';
+        }, 200);
+    }
+}
+
+    function joinInfoChannel() {
+        window.open('https://t.me/info811', '_blank');
+        increaseMadness();
+    }
     </script>
 </body>
 </html>
